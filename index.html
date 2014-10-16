@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>To Do List</title>
+	<script src='http://cdn.ractivejs.org/latest/ractive.min.js'></script>
+	<script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>
+	<script src='js/ractive.js'></script>
+	<script src='js/template.js'></script>
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+</head>
+<body>
+
+	<script id='template' type="text/ractive">
+		<input on-enter='addToList' placeholder='Add task...'>
+	</script>
+
+	<script>
+		var List = Ractive.extend({
+			template: '#template'
+
+
+
+		});
+	</script>
+
+	<script>
+		var toDoList = new List({
+			el: document.body
+		});
+	</script>
+
+
+
+</body>
+</html>
