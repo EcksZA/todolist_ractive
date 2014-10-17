@@ -6,26 +6,78 @@
 	<script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>
 	<script src='js/ractive.js'></script>
 	<script src='js/template.js'></script>
+	<script src='lib/ractive-events-keys.js'></script>
 	<link rel="stylesheet" type="text/css" href="css/styles.css">
 </head>
 <body>
 
 	<script id='template' type="text/ractive">
-		<input on-enter='addToList' placeholder='Add task...'>
+		<input on-enter='addTask' placeholder='Add task...'>
+
+		<h4>Current Tasks</h4>
+
+		<div>
+			{{^tasks.complete}}
+				{{>listTasks}}
+			{{/if}}
+		</div>
+
+		<h4>Complete Tasks</h4>
+
+		<div>
+			{{#if tasks.complete}}
+				{{>listTasks}}
+			{{/if}}
+		</div>
 	</script>
 
 	<script>
+		var taskPartial = "{{#each tasks:num}}" +
+												"<div>" +
+													"<div><input type='checkbox' on-click='completed:num' checked={{complete}}></div>" +
+													"<div>{{this.description}}</div>" +
+													"<div>x</div>" +
+												"<div>" +
+											"{{/each}}";
+
 		var List = Ractive.extend({
-			template: '#template'
+			template: '#template',
 
+			saveTask: function( task ) {
+				this.push('tasks', {
+					description: task,
+					complete: false
+				});
+			},
 
+			init: function( options ) {
+				this.on({
+					addTask: function( event ) {
+						this.saveTask(event.node.value);
+						event.node.blur();
+						event.node.value = '';
+					},
+
+					completed: function( event, i ) {
+						var thisObj = this.splice('tasks', i, 1);
+						this.push('data.completedTasks', thisObj);
+					}
+				});
+			}
 
 		});
 	</script>
 
 	<script>
-		var toDoList = new List({
-			el: document.body
+		window.toDoList = new List({
+			el: document.body,
+			partials: {
+				listTasks: taskPartial
+			},
+			data: {
+				tasks: [],
+				completedTasks: []
+			}
 		});
 	</script>
 
