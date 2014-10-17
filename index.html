@@ -8,5 +8,78 @@
 </head>
 <body>
 
+	<h1>Task Lists</h1>
+
+	<script id='template' type="text/ractive">
+		<input type='text' on-enter='add_task' placeholder='Add a task...'/>
+
+		<h4>Current Tasks</h4>
+				{{#each tasks:i}}
+					{{>taskPartial}}
+				{{/each}}
+
+		<h4>Complete Tasks</h4>
+				{{#each completedTasks}}
+					{{>completedPartial}}
+				{{/each}}
+	</script>
+
+	<script>
+		var taskPartial = "<div>" +
+												"<p><input type='checkbox' checked={{completed}} on-click='complete_task'> {{this.description}} <span style='margin-left: 5px;' on-click='remove_task'>x</span></p>" +
+											"</div>";
+
+		var Task = Ractive.extend({
+			template: '#template',
+			append: true,
+			partials: {
+				taskPartial: taskPartial
+			},
+
+			addTask: function( task ) {
+				this.push('tasks', {
+					description: task,
+					completed: false
+				});
+			},
+
+			removeTask: function( task ) {
+				this.splice('tasks', task, 1);
+			},
+
+			completeTask: function( task ) {
+				var obj = this.splice('tasks', task, 1);
+				this.push('completedTasks', obj);
+				
+			},
+
+			init: function( options ) {
+				this.on({
+					add_task: function( event ) {
+						this.addTask(event.node.value);
+						event.node.value = '';
+					},
+
+					remove_task: function( event ) {
+						this.removeTask(event.index.i);
+					},
+
+					complete_task: function( event ) {
+						this.completeTask(event.index.i);
+					}
+				});
+			}
+		});
+
+		window.tasks = new Task({
+			el: document.body,
+			append: true,
+			data: {
+				tasks: [],
+				completedTasks: []
+			}
+		});
+	</script>
+
 </body>
 </html>
