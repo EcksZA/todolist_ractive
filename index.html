@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>To Do List</title>
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
 	<script src='lib/ractive.js'></script>
 	<script src='lib/ractive-events-keys.js'></script>
 	<script src='lib/jquery-2.1.1.min.js'></script>
@@ -14,26 +15,59 @@
 		<input type='text' on-enter='add_task' placeholder='Add a task...'/>
 
 		<h4>Current Tasks</h4>
-				{{#each tasks:i}}
-					{{>taskPartial}}
-				{{/each}}
+		<div>
+			{{#each tasks:i}}
+				{{>taskPartial}}
+			{{/each}}
+		</div>
 
 		<h4>Complete Tasks</h4>
-				{{#each completedTasks}}
-					{{>completedPartial}}
-				{{/each}}
+		<div>
+			{{#each completedTasks:i}}
+				{{>completePartial}}
+			{{/each}}
+		</div>
+
+		<h4>Closed Tasks</h4>
+		<div>
+			{{#each removedTasks}}
+				{{>removePartial}}
+			{{/each}}
+		</div>
+
+		<h4>Completion</h4>
+
+		<h5>Current Tasks</h5>
+		<div style="background-color: #FF1100; height: 1em; width: {{tasks_num}}em;"><span style='margin-left: {{tasks_num}}em; padding: 1em;'>{{tasks.length}}</span></div>
+
+		<h5>Completed Tasks</h5>
+		<div style="background-color: #3399FF; height: 1em; width: {{completed_num}}%;"><span style='margin-left: {{completed_num}}em; padding: 1em;'>{{completedTasks.length}}</span></div>
+
+		<h5>Closed Tasks</h5>
+		<div style="background-color: #66FF66; height: 1em; width: {{removed_num}}%;"><span style='margin-left: {{removed_num}}em; padding: 1em;'>{{removedTasks.length}}</span></div>
+
 	</script>
 
 	<script>
 		var taskPartial = "<div>" +
-												"<p><input type='checkbox' checked={{completed}} on-click='complete_task'> {{this.description}} <span style='margin-left: 5px;' on-click='remove_task'>x</span></p>" +
+												"<p><input type='checkbox' checked={{completed}} on-click='complete_task' /> <span>{{description}}</span> </p>" +
 											"</div>";
+
+		var completePartial = "<div>" +
+														"<p><input type='checkbox' checked={{completed}} on-click='current_task' /> <span>{{description}}</span> <span style='margin-left: 5px;' on-click='remove_task'>x</span></p>" +
+													"</div>";
+
+		var removePartial = "<div>" +
+													"<p>{{description}}</p>" +
+												"</div>";
 
 		var Task = Ractive.extend({
 			template: '#template',
 			append: true,
 			partials: {
-				taskPartial: taskPartial
+				taskPartial: taskPartial,
+				completePartial: completePartial,
+				removePartial: removePartial
 			},
 
 			addTask: function( task ) {
@@ -41,16 +75,28 @@
 					description: task,
 					completed: false
 				});
+				this.animate('tasks_num', this.get('tasks_num') + 1);
 			},
 
 			removeTask: function( task ) {
-				this.splice('tasks', task, 1);
+				this.push('removedTasks', this.data.completedTasks[task]);
+				this.splice('completedTasks', task, 1);
+				this.animate('removed_num', this.get('removed_num') + 1);
+				this.animate('completed_num', this.get('completed_num') - 1);
 			},
 
 			completeTask: function( task ) {
-				var obj = this.splice('tasks', task, 1);
-				this.push('completedTasks', obj);
-				
+				this.push('completedTasks', this.data.tasks[task]);
+				this.splice('tasks', task, 1);
+				this.animate('completed_num', this.get('completed_num') + 1);
+				this.animate('tasks_num', this.get('tasks_num') - 1);
+			},
+
+			currentTask: function( task ) {
+				this.push('tasks', this.data.completedTasks[task]);
+				this.splice('completedTasks', task, 1);
+				this.animate('tasks_num', this.get('tasks_num') + 1);
+				this.animate('completed_num', this.get('completed_num') - 1);
 			},
 
 			init: function( options ) {
@@ -66,6 +112,10 @@
 
 					complete_task: function( event ) {
 						this.completeTask(event.index.i);
+					}, 
+
+					current_task: function( event ) {
+						this.currentTask(event.index.i);
 					}
 				});
 			}
@@ -76,7 +126,11 @@
 			append: true,
 			data: {
 				tasks: [],
-				completedTasks: []
+				completedTasks: [],
+				removedTasks: [],
+				tasks_num: 0,
+				completed_num: 0,
+				removed_num: 0
 			}
 		});
 	</script>
