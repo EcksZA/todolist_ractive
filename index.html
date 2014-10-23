@@ -12,53 +12,58 @@
 	<h1>Task Lists</h1>
 
 	<script id='template' type="text/ractive">
-		<input type='text' on-enter='add_task' placeholder='Add a task...'/>
+		
+		<div id='user-input'><input type='text' on-enter='add_task' placeholder='Add a task and press enter...'/></div>
+		<div id='first-half'>
+			<div id='current-tasks'>		
+				<h4>Current Tasks</h4>					
+					{{#each tasks:i}}
+						{{>taskPartial}}
+					{{/each}}
+			</div>
 
-		<h4>Current Tasks</h4>
-		<div>
-			{{#each tasks:i}}
-				{{>taskPartial}}
-			{{/each}}
+			<div id='complete-tasks'>
+				<h4>Complete Tasks</h4>				
+				{{#each completedTasks:i}}
+					{{>completePartial}}
+				{{/each}}
+			</div>
 		</div>
 
-		<h4>Complete Tasks</h4>
-		<div>
-			{{#each completedTasks:i}}
-				{{>completePartial}}
-			{{/each}}
+		<div id='second-half'>
+			<div id='closed-tasks'>
+				<h4>Closed Tasks</h4>
+					{{#each removedTasks}}
+						{{>removePartial}}
+					{{/each}}
+			</div>
+
+			<div id='completion'>
+				<h4>Completion</h4>
+
+				<h5>Current Tasks</h5>
+				<div class='animate' style="background-color: #FF1100; height: 1em; width: {{tasks_num}}em; margin-left: 10em;"><span style='margin-left: {{tasks_num}}em; padding: 1em;'>{{tasks.length}}</span></div>
+
+				<h5>Completed Tasks</h5>
+				<div class='animate' style="background-color: #3399FF; height: 1em; width: {{completed_num}}em; margin-left: 10em;" ><span style='margin-left: {{completed_num}}em; padding: 1em;'>{{completedTasks.length}}</span></div>
+
+				<h5>Closed Tasks</h5>
+				<div class='animate' style="background-color: #66FF66; height: 1em; width: {{removed_num}}em; margin-left: 10em;"><span style='margin-left: {{removed_num}}em; padding: 1em;'>{{removedTasks.length}}</span></div>
+			</div>
 		</div>
-
-		<h4>Closed Tasks</h4>
-		<div>
-			{{#each removedTasks}}
-				{{>removePartial}}
-			{{/each}}
-		</div>
-
-		<h4>Completion</h4>
-
-		<h5>Current Tasks</h5>
-		<div style="background-color: #FF1100; height: 1em; width: {{tasks_num}}em;"><span style='margin-left: {{tasks_num}}em; padding: 1em;'>{{tasks.length}}</span></div>
-
-		<h5>Completed Tasks</h5>
-		<div style="background-color: #3399FF; height: 1em; width: {{completed_num}}%;"><span style='margin-left: {{completed_num}}em; padding: 1em;'>{{completedTasks.length}}</span></div>
-
-		<h5>Closed Tasks</h5>
-		<div style="background-color: #66FF66; height: 1em; width: {{removed_num}}%;"><span style='margin-left: {{removed_num}}em; padding: 1em;'>{{removedTasks.length}}</span></div>
-
 	</script>
 
 	<script>
-		var taskPartial = "<div>" +
-												"<p><input type='checkbox' checked={{completed}} on-click='complete_task' /> <span>{{description}}</span> </p>" +
+		var taskPartial = "<div class='task-partial'>" +
+												"<p><input type='checkbox' checked={{completed}} on-click='complete_task' /> <span class='description'>{{description}}</span> </p>" +
 											"</div>";
 
-		var completePartial = "<div>" +
-														"<p><input type='checkbox' checked={{completed}} on-click='current_task' /> <span>{{description}}</span> <span style='margin-left: 5px;' on-click='remove_task'>x</span></p>" +
+		var completePartial = "<div class='complete-partial'>" +
+														"<input type='checkbox' checked={{completed}} on-click='current_task' /> <span class='description'>{{description}}</span> <span class='remove' style='margin-left: 5px;' on-click='remove_task'>x</span>" +
 													"</div>";
 
-		var removePartial = "<div>" +
-													"<p>{{description}}</p>" +
+		var removePartial = "<div class='remove-partial'>" +
+													"{{description}}" +
 												"</div>";
 
 		var Task = Ractive.extend({
