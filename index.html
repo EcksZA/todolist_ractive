@@ -11,6 +11,8 @@
 
 	<h1>Task Lists</h1>
 
+	<script src='js/scripts.js'></script>
+
 	<script id='template' type="text/ractive">
 		
 		<div id='user-input'><input type='text' on-enter='add_task' placeholder='Add a task and press enter...'/></div>
@@ -54,7 +56,7 @@
 	</script>
 
 	<script>
-		var taskPartial = "<div class='task-partial'>" +
+		var taskPartial = "<div class='task-partial' draggable='true'>" +
 												"<p><input type='checkbox' checked={{completed}} on-click='complete_task' /> <span class='description'>{{description}}</span> </p>" +
 											"</div>";
 
@@ -139,6 +141,8 @@
 			}
 		});
 	</script>
+
+	
 
 </body>
 </html>
